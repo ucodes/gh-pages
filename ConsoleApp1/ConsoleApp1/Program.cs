@@ -16,7 +16,7 @@ namespace ConsoleApp1
              string Url = "http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html";
              HtmlWeb web = new HtmlWeb();
              HtmlDocument doc = web.Load(Url);
-             Console.WriteLine(doc.ToString());
+            Console.WriteLine(doc.ToString());
              Console.WriteLine(doc.ParsedText);
              doc.Save("C:\\wintel\\index.html");
              Console.Read();
