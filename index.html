@@ -1,0 +1,2088 @@
+﻿<!DOCTYPE html>
+<html lang='en' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://www.google.com/2005/gml/b' xmlns:data='http://www.google.com/2005/gml/data' xmlns:expr='http://www.google.com/2005/gml/expr'>
+<head>
+<link href='https://www.blogger.com/static/v1/widgets/3957297643-widget_css_bundle.css' rel='stylesheet' type='text/css'>
+<meta charset='utf-8'>
+<meta content='IE=9; IE=8; IE=7; IE=EDGE; chrome=1' http-equiv='X-UA-Compatible'>
+<!-- 25/03/2010 - changed to only show article title in sub pages -->
+<title>
+Easily extracting links from a snippet of html with HtmlAgilityPack
+</title>
+<!-- original title markup: title data:blog.pageTitle/ /title -->
+<meta content='width=device-width, initial-scale=1.0' name='viewport'>
+<meta content='Matthew Harris' name='author'>
+<meta content='moXb5owNyEVpTJUnntpDaTTBzME' name='alexaVerifyID'>
+<meta content='Bbywlz1-lLlmkOZ36XXuQIBU_f2JG1KJBtHkWKLq3oA' name='google-site-verification'>
+<meta content='22DAFEEE18F6AC2B3AB46425D637EB9C' name='msvalidate.01'>
+<meta content='a4d25dce4586f4df' name='y_key'>
+<meta content='dfLpAkFqZsUmeZX9FtF4N7J1Z7E' type=''>
+<link href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css' rel='stylesheet'>
+<link href='//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css' rel='stylesheet'>
+<link href='http://fonts.googleapis.com/css?family=Open+Sans|Bitter' rel='stylesheet' type='text/css'>
+<style type='text/css'>
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+        font-size: 16px;
+        line-height: 24px;
+        font-family: 'Open Sans', "Helvetica Neue",Helvetica,Arial,sans-serif;
+
+        background-image:url('//static.rtpdesign.co.uk/blog/img/background.png');
+        background-repeat:no-repeat;
+		background-position: right top;
+		background-size: 80%;
+      }
+      /* Small Devices, Tablets */
+      @media only screen and (min-width : 768px) {
+          body {
+              background-size: 70%;
+          }
+      }
+
+      /* Medium Devices, Desktops */
+      @media only screen and (min-width : 992px) {
+          body {
+              background-size: 60%;
+          }
+      }
+
+      /* Large Devices, Wide Screens */
+      @media only screen and (min-width : 1200px) {
+          body {
+              background-size: 50%;
+          }
+      }
+	  a {
+		color: #0054A6;
+      }
+      p, ul, ol
+      {
+        margin-bottom: 25px;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        font-family: 'Bitter', Georgia, 'Times New Roman', serif;
+      }
+	  .well {
+		opacity: 0.9;
+      }
+      .widget {
+        margin-bottom: 2em;
+      }
+      .date-outer {
+        margin-bottom: 3em;
+      }
+      h1, h2, h3, h4, h5, h6, .entry-title a {
+        /* color: #ed9c00;  orange */
+        color: #E54A41; /*#A5352F; /*#d8463d; /* red */ 
+      }
+	  h1 {
+		margin-top: 2em;
+      }
+      h2 {
+        margin-top: 1.75em;
+      }
+      h2:first-child {
+        margin-top: 0.5em;
+      }
+      h4,h5,h6 {
+        margin-top: 1em;
+        margin-bottom: .5em;
+      }
+      ol li {
+        margin-bottom: .75em;
+      }
+	  .indexpostdate {
+        font-size: smaller;
+        margin-bottom: 10px;
+      }
+      .post-footer {
+        border-top: 3px solid #eee;
+        margin-top: 3em;
+      }
+	  .post-footer-line {
+		padding-top: 5px;
+		padding-bottom: 5px;
+      }
+	  .post-comment-link {
+		display: none;
+      }
+      .postupdatednotifybox{
+        padding: 1em 1em 0.5em 1em; 
+        border: 1px solid #ff0000; 
+        margin-bottom: 1em;
+      }
+      dd.comment-footer {
+        margin-bottom: 1em;
+      }
+      div.syntaxhighlighter {
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        border-radius: 4px 4px 4px 4px;
+        padding: 8.5px;
+      }
+	  #main img {
+		  display: block;
+          max-width: 100%;
+          height: auto;
+      }
+      #main .syntaxhighlighter .gutter .line {
+        border-right: 3px solid #0088CC !important;
+      }
+      #main .syntaxhighlighter .toolbar {
+        background: #0088CC !important;
+      }
+      #main .syntaxhighlighter .toolbar a:hover {
+      }
+      div.Label ul {
+        list-style-type: none;
+        margin: 0;
+      }
+      div.Label ul li {
+        float: left;
+        padding: 3px;
+        border: 1px solid #0088CC;
+        margin: 0 10px 10px 0;
+      }
+      .alert-info a:link,
+      .alert-info a:visited {
+		text-decoration: underline;
+		font-weight: bold;
+      }
+      /* fix so bootstrap and syntax highlighter play well together */
+      .syntaxhighlighter .container:before,
+      .syntaxhighlighter .container:after {
+        display: none;
+      }
+    </style>
+<!--[if lt IE 9]> <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script> <![endif]-->
+<style type='text/css'>
+      #WasProblemSolvedLinkPanel .ButtonPane
+      {
+        float: left;
+        display: block;
+        width: 49%;
+        text-align: center;
+        line-height: 3em;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+      }
+      #WasProblemSolvedLinkPanel #ProblemSolved
+      {
+        font-size: 2em;
+        margin-right: 3px;
+      }
+      #WasProblemSolvedPanel .Yes
+      {
+        background-color: #36BE6C;
+        border: 1px solid #0A7133;   	
+      }
+      #WasProblemSolvedPanel .No
+      {
+        background-color: #FF6B62;
+        border: 1px solid #BE3E36;
+      }
+	  #WasProblemSolvedLinkPanel a
+	  {
+		color: #fff;
+      }
+      #WasProblemSolvedLinkPanel #ProblemNotSolved
+      {
+        font-size: 2em;        	
+      }
+      #WasProblemSolvedThanksPanel
+      {
+        height: 4em;
+        text-align: center;
+      }
+      #WasProblemSolvedLearnMore
+      {
+        clear: both;
+        font-size: smaller;
+      }
+    </style>
+<script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                              })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-7034895-2', 'auto');
+      ga('send', 'pageview');
+    </script>
+<meta content='text/html; charset=UTF-8' http-equiv='Content-Type'>
+<meta content='blogger' name='generator'>
+<link href='http://articles.runtings.co.uk/favicon.ico' rel='icon' type='image/x-icon'>
+<link href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html' rel='canonical'>
+<link rel="alternate" type="application/atom+xml" title="Run Tings Proper - Atom" href="http://articles.runtings.co.uk/feeds/posts/default">
+<link rel="alternate" type="application/rss+xml" title="Run Tings Proper - RSS" href="http://articles.runtings.co.uk/feeds/posts/default?alt=rss">
+<link rel="service.post" type="application/atom+xml" title="Run Tings Proper - Atom" href="https://www.blogger.com/feeds/5519904556829079674/posts/default">
+
+<link rel="alternate" type="application/atom+xml" title="Run Tings Proper - Atom" href="http://articles.runtings.co.uk/feeds/1959600173360165106/comments/default">
+<!--Can't find substitution for tag [blog.ieCssRetrofitLinks]-->
+<link href='http://www.dotnetkicks.com/Services/Images/KickItImageGenerator.ashx?url=http%3a%2f%2fruntingsproper.blogspot.com%2f2009%2f11%2feasily-extracting-links-from-snippet-of.html' rel='image_src'>
+<meta content='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html' property='og:url'>
+<meta content='Easily extracting links from a snippet of html with HtmlAgilityPack' property='og:title'>
+<meta content='The HtmlAgilityPack is a powerful library that makes screen scraping in asp.net a breeze. This is the second in a continuing series where I ...' property='og:description'>
+<meta content='https://lh6.googleusercontent.com/proxy/lxXxNT59-UIJOarH_9E9QvAjA7DFqhjZ1qwZysqGWt7h46lRJVqllMflfjB21df_Vt3y3Rfm_rhAr9OJzk-doGB_e5Tbp8cO6X4OJxrS0iVrBQ2XOeK1Ds8Ix69DjSyAEbaFIRqekMvzaqUW9XRlceuNP-ojFPFjiW8mJcmD8EnwsUCgXFfsWcljH5irIv4Jme6KVTYc9Wiu3exLzgDNKZ1ySWYzovM9CyxONEdKP6xgc_egYzN_a7wUTyqHwZ-zpA=w1200-h630-p-k-no-nu' property='og:image'>
+<!--[if IE]> <script> (function() { var html5 = ("abbr,article,aside,audio,canvas,datalist,details," + "figure,footer,header,hgroup,mark,menu,meter,nav,output," + "progress,section,time,video").split(','); for (var i = 0; i < html5.length; i++) { document.createElement(html5[i]); } try { document.execCommand('BackgroundImageCache', false, true); } catch(e) {} })(); </script> <![endif]-->
+<style id='page-skin-1' type='text/css'><!--
+/*
+
+--></style>
+<link href='https://www.blogger.com/dyn-css/authorization.css?targetBlogID=5519904556829079674&amp;zx=bf88f7b5-ef44-42cf-bc82-a27103800ae4' media='none' onload='if(media!=&#39;all&#39;)media=&#39;all&#39;' rel='stylesheet'><noscript><link href='https://www.blogger.com/dyn-css/authorization.css?targetBlogID=5519904556829079674&amp;zx=bf88f7b5-ef44-42cf-bc82-a27103800ae4' rel='stylesheet'></noscript>
+</head>
+<body>
+<div class='navbar no-items section' id='navbar'>
+</div>
+<nav class='navbar navbar-default navbar-fixed-top'>
+<div class='container'>
+<div class='navbar-header'>
+<button class='navbar-toggle collapsed' data-target='#topnav' data-toggle='collapse' type='button'>
+<span class='sr-only'>
+              Toggle navigation
+            </span>
+<span class='icon-bar'>
+</span>
+<span class='icon-bar'>
+</span>
+<span class='icon-bar'>
+</span>
+</button>
+<a class='navbar-brand' href='/'>
+            Run Tings Proper
+          </a>
+</div>
+<div class='collapse navbar-collapse' id='topnav'>
+<ul class='nav navbar-nav'>
+<li>
+<a href='/'>
+                Articles
+              </a>
+</li>
+<li class='dropdown'>
+<a class='dropdown-toggle' data-toggle='dropdown' href='#'>
+                Projects 
+                <b class='caret'></b>
+</a>
+<ul class='dropdown-menu'>
+<li>
+<a href='/search/label/Bootstrap-sample'>
+                    Bootstrap 3 Samples
+                  </a>
+</li>
+<li>
+<a href='/p/bootlint-this-page-chrome.html'>
+                    Bootlint This Page - Chrome Extension
+                  </a>
+</li>
+<li>
+<a href='/p/bulk-page-stub-creator-wordpress.html'>
+                    Bulk Page Stub Creator - WordPress Plugin
+                  </a>
+</li>
+<li>
+<a href='/p/good-deeds-firefox.html'>
+                    Good Deeds - Firefox Addon
+                  </a>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<!-- /.navbar-collapse -->
+</div>
+<!-- /.container-fluid -->
+</nav>
+<div class='container'>
+<div class='row'>
+<div class='col-md-9'>
+<div>
+<a href='/'><img alt='' class='img-responsive' src='//static.rtpdesign.co.uk/blog/img/blog-logo.png'></a>
+</div>
+<div class='row'>
+<div class='col-md-12'>
+<div id='crosscol-wrapper' style='text-align:center'>
+<div class='crosscol no-items section' id='crosscol'></div>
+</div>
+<div id='main-wrapper'>
+<div class='main section' id='main'><div class='widget Blog' data-version='1' id='Blog1'>
+<div class='blog-posts hfeed'>
+<!--Can't find substitution for tag [defaultAdStart]-->
+
+                              <div class="date-outer">
+                            
+
+                              <div class="date-posts">
+                            
+<div class='post-outer'>
+<div class='post hentry'>
+<a name='1959600173360165106'></a>
+<h1 class='post-title entry-title'>
+Easily extracting links from a snippet of html with HtmlAgilityPack
+</h1>
+<div class='post-header'>
+<div class='post-header-line-1'></div>
+</div>
+<div class='post-body entry-content'>
+<p>The HtmlAgilityPack is a powerful library that makes screen scraping in asp.net a breeze. This is the second in a continuing series where I demonstrate a way for you to extract all the links from a snippet of html.</p> <a name='more'></a>  <h4>A little background</h4>  <p>If you haven't heard about HtmlAgilityPack yet then you have landed on the wrong post. Head over to my introduction to the subject and then come back and see me when you have read that.</p>  <ul>   <li><a title="http://runtingsproper.blogspot.com/2009/09/introduction-to-htmlagilitypack-library.html" href="http://runtingsproper.blogspot.com/2009/09/introduction-to-htmlagilitypack-library.html">http://runtingsproper.blogspot.com/2009/09/introduction-to-htmlagilitypack-library.html</a> </li> </ul>  <h4>How the sample application is going to work</h4>  <p>The sample application is going to take a snippet of messy html stored in a text file. We are going to load it in and parse out all the &lt;a href=&quot;&quot;&gt; tags and present these links in the browser by binding them to a gridview.</p>  <p>Lets take a look at the html snippet that we are going to load:</p>  <p><strong>~/App_Data/HtmlSnippet.txt</strong></p>  <pre class="brush: xml;">&lt;table border=&quot;0&quot; cellpadding=&quot;2&quot; cellspacing=&quot;7&quot; style=&quot;vertical-align:top;&quot;&gt;&lt;tr&gt;&lt;td width=&quot;80&quot; align=&quot;center&quot; valign=&quot;top&quot;&gt;&lt;font style=&quot;font-size:85%;font-family:arial,sans-serif&quot;&gt;&lt;a href=&quot;http://news.google.com/news/url?fd=R&amp;amp;sa=T&amp;amp;url=http%3A%2F%2Fwww.timesonline.co.uk%2Ftol%2Fnews%2Fworld%2Fus_and_americas%2Farticle6802128.ece&amp;amp;usg=AFQjCNGnZL4BdTSWSglpAZdprg3u_tJVhg&quot;&gt;&lt;img src=&quot;http://nt2.ggpht.com/news/tbn/XrArEKXhTe6dLM/6.jpg&quot; alt=&quot;&quot; border=&quot;1&quot; width=&quot;80&quot; height=&quot;80&quot; /&gt;&lt;br /&gt;&lt;font size=&quot;-2&quot;&gt;Times Online&lt;/font&gt;&lt;/a&gt;&lt;/font&gt;&lt;/td&gt;&lt;td valign=&quot;top&quot;&gt;&lt;font style=&quot;font-size:85%;font-family:arial,sans-serif&quot;&gt;&lt;br /&gt;&lt;div style=&quot;padding-top:0.8em;&quot;&gt;&lt;img alt=&quot;&quot; height=&quot;1&quot; width=&quot;1&quot; /&gt;&lt;/div&gt;&lt;div&gt;&lt;a href=&quot;http://news.google.com/news/url?fd=R&amp;amp;sa=T&amp;amp;url=http%3A%2F%2Fwww.latimes.com%2Fnews%2Fnationworld%2Fnation%2Fla-na-health-coop20-2009aug20%2C0%2C4258832.story&amp;amp;usg=AFQjCNG4LI_9w3yHg7H8ZqUBaKNwzpgiuA&quot;&gt;&lt;b&gt;Healthcare co-ops emerging as viable alternative&lt;/b&gt;&lt;/a&gt;&lt;!-- snip --&gt;</pre>
+
+<p>Well that's not all of it but I think you get the point. Like I said this snippet originally came from a forum question. The html itself came from what looks like a Google news feed. I have kept it for this article because it shows that the HtmlAgilityPack can handle messy code and also that its not going to be tripped up by the extra urls which are url encoded into it.</p>
+
+<p>The normal approach of using a regular expression to extract this kind of information could be tricked by this kind of code. I am not a big fan of using regular expressions for extracting this kind of information because they are too brittle (but I am a big fan of regular expressions).</p>
+
+<h4>The main structure of the program</h4>
+
+<p>Here is the code for the Page_Load method for your perusal. It should give you an idea of the main steps this program takes to complete its tasks:</p>
+
+<pre class="brush: csharp;">protected void Page_Load(object sender, EventArgs e)
+{
+    // load snippet
+    HtmlDocument htmlSnippet = new HtmlDocument();
+    htmlSnippet = LoadHtmlSnippetFromFile();
+
+    // extract hrefs
+    List&lt;string&gt; hrefTags = new List&lt;string&gt;();
+    hrefTags = ExtractAllAHrefTags(htmlSnippet);
+
+    // bind to gridview
+    GridViewHrefs.DataSource = hrefTags;
+    GridViewHrefs.DataBind();
+}</pre>
+
+<p>So as you can see it takes three main steps - loading the snippet of html into the system, parsing it and a final cosmetic stage of binding it to a GridView. </p>
+
+<p>In the first line you see that we create an instance of a HtmlDocument class. This is a class which comes with the HtmlAgilityPack library. It is the primary class you use to store a complete HtmlDocument.</p>
+
+<p>This brings us nicely to LoadHtmlSnippetFromFile();</p>
+
+<h4>Loading the html snippet from file</h4>
+
+<p>The second method we are going to look at is LoadHtmlSnippetFromFile(); </p>
+
+<p>It is a pretty simple method which loads in the full version of that horribly messy html snippet I showed you earlier. However this is not to say that it doesn't do anything educational. Lets take a look:</p>
+
+<pre class="brush: csharp;">/// &lt;summary&gt;
+/// Load the html snippet from the txt file
+/// &lt;/summary&gt;
+private HtmlDocument LoadHtmlSnippetFromFile()
+{
+    TextReader reader = File.OpenText(Server.MapPath(&quot;~/App_Data/HtmlSnippet.txt&quot;));
+
+    HtmlDocument doc = new HtmlDocument();
+    doc.Load(reader);
+
+    reader.Close();
+
+    return doc;
+}</pre>
+
+<p>So as you can see, I have used one of the many stream reader classes to effortlessly load the html snippet txt file into memory.</p>
+
+<p>Turning this stream of html text into a queryable document is the task of the Load() method on the HtmlDocument. If you poke around with intellisense on that method you will find that it has 10 overloads which will let you us paths, streams or TextReaders with various encoding options.</p>
+
+<p>If you already have the contents of a html document contained with in string (such as from a web service) then you can use LoadHtml().</p>
+
+<p>There is a third option which the HtmlAgilityPack supports and that is retrieving the page over the internet via a url. This is demonstrated in the next article which explains how you can test if a web page contains an rss or atom feed, but for now it will remain a tantalising mystery.</p>
+
+<p>I shouldn't have to say it but don't forget to .Close() your stream after you have populated your HtmlDocument.</p>
+
+<h4>Extract all href tags from the document</h4>
+
+<p>This is the section we have all been waiting for - it is the part where the html parsing magic is done. And while this is a deceptively simple method it actually shows many of the key building blocks you will use in your screen scraping endeavours.</p>
+
+<pre class="brush: csharp;">/// &lt;summary&gt;
+/// Extract all anchor tags using HtmlAgilityPack
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;htmlSnippet&quot;&gt;&lt;/param&gt;
+/// &lt;returns&gt;&lt;/returns&gt;
+private List&lt;string&gt; ExtractAllAHrefTags(HtmlDocument htmlSnippet)
+{
+    List&lt;string&gt; hrefTags = new List&lt;string&gt;();
+
+    foreach (HtmlNode link in htmlSnippet.DocumentNode.SelectNodes(&quot;//a[@href]&quot;))
+    {
+        HtmlAttribute att = link.Attributes[&quot;href&quot;];
+        hrefTags.Add(att.Value);
+    }
+
+    return hrefTags;
+}</pre>
+
+<p>Looking at the code several things become clear:</p>
+
+<ul>
+  <li>The HtmlDocument class contains a collection of HtmlNodes </li>
+
+  <li>These HtmlNodes can be selected with an XPath query </li>
+
+  <li>The HtmlNodes can then be interrogated attribute by attribute with the HtmlAttribute class. </li>
+</ul>
+
+<p>Using these three elements I have extracted a list of all the hrefs in the html snippet.</p>
+
+<p>The use of XPath for extracting information out of html documents is key to the power of HtmlAgilityPack. If you don't know what XPath is then it's a technology that goes alongside xml and provides a query language for extracting xml nodes out of xml documents. </p>
+
+<p>XML documents must be valid to be queried and most html out on the web is far from valid. It is littered with unclosed tags, capitalisations and syntax errors. A normal implementation of XPath can't be used to query html unless you clean it up first. The great thing about this being in HtmlAgilityPack is that the implementation will do its best to extract the information regardless of the validity of the document. </p>
+
+<p>This gives us a very expressive way to describe the information we want to extract. In fact for many projects you will find that the hardest part is figuring out the correct XPath query to describe exactly what you want.</p>
+
+<p>Our query //a[@href] means select all a tags (html anchor tags) that have a href attribute (so don't select the anchor if its just a named anchor).</p>
+
+<p>The resulting collection is then iterated over in the foreach loop where I read the href attribute from each a tag and put it into my final collection for databinding.</p>
+
+<p>We have covered a lot of ground in very little code which I hope further impresses on you the power of this library.</p>
+
+<p>Tune in next time to find out how we will build a query engine that can detect if a webpage has an rss or atom feed associated with it!</p>
+
+<h4>Download the sample application</h4>
+
+<p>The sample application contains everything we discussed in this article including the HtmlAgilityPack, the code and the html snippet file.</p>
+
+<ul>
+  <li><a href="http://cid-15f731b049c8a797.skydrive.live.com/self.aspx/BlogExamples/HtmlAgilityPackExample-ExtractHrefs.rar">http://cid-15f731b049c8a797.skydrive.live.com/self.aspx/BlogExamples/HtmlAgilityPackExample-ExtractHrefs.rar</a></li>
+</ul>
+
+<h4>More In This Series</h4>
+
+<p>This article is part of a series. You can find more posts in this series here:</p>
+
+<ul>
+  <li><a title="http://runtingsproper.blogspot.com/2009/09/htmlagilitypack-article-series.html" href="http://runtingsproper.blogspot.com/2009/09/htmlagilitypack-article-series.html">http://runtingsproper.blogspot.com/2009/09/htmlagilitypack-article-series.html</a> </li>
+</ul><div class="wlWriterHeaderFooter" style="margin:0px; padding:0px 0px 0px 0px;"><a href="http://www.dotnetkicks.com/kick/?url=http%3a%2f%2fruntingsproper.blogspot.com%2f2009%2f11%2feasily-extracting-links-from-snippet-of.html" rev="vote-for"><img alt="kick it" src="http://www.dotnetkicks.com/Services/Images/KickItImageGenerator.ashx?url=http%3a%2f%2fruntingsproper.blogspot.com%2f2009%2f11%2feasily-extracting-links-from-snippet-of.html" style="border:0px"></a>&nbsp;<a rev="vote-for" href="http://dotnetshoutout.com/Submit?url=http%3a%2f%2fruntingsproper.blogspot.com%2f2009%2f11%2feasily-extracting-links-from-snippet-of.html"><img alt="Shout it" src="http://dotnetshoutout.com/image.axd?url=http%3a%2f%2fruntingsproper.blogspot.com%2f2009%2f11%2feasily-extracting-links-from-snippet-of.html" style="border:0px"></a>&nbsp;<a href="http://webdevvote.com/vote/?url=http%3a%2f%2fruntingsproper.blogspot.com%2f2009%2f11%2feasily-extracting-links-from-snippet-of.html" rev="vote-for"><img alt="vote it on WebDevVote.com" src="http://webdevvote.com/Services/Images/KickItImageGenerator.ashx?url=http%3a%2f%2fruntingsproper.blogspot.com%2f2009%2f11%2feasily-extracting-links-from-snippet-of.html" style="border:0px"></a></div>  
+<div style='clear: both;'></div>
+</div>
+<div class='post-footer'>
+<div class='post-footer-line post-footer-line-1 row'>
+<div class='col-md-2'>
+<span class='post-author vcard'>
+<span class='fn'>
+<i class='fa fa-user'></i>
+rtpHarry
+</span>
+</span>
+</div>
+<div class='col-md-4'>
+<span class='post-timestamp'>
+<i class='fa fa-calendar'></i>
+<a class='timestamp-link' href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html' rel='bookmark' title='permanent link'>
+<abbr class='published' title='2009-11-19T23:36:00Z'>
+Thursday, 19 November 2009
+23:36
+</abbr>
+</a>
+</span>
+</div>
+<div class='col-md-6'>
+<span class='post-labels'>
+<i class='fa fa-tags'></i>
+Labels:
+<a href='http://articles.runtings.co.uk/search/label/article' rel='tag'>
+article
+</a>
+
+                                    ,
+                                  
+<a href='http://articles.runtings.co.uk/search/label/asp.net' rel='tag'>
+asp.net
+</a>
+
+                                    ,
+                                  
+<a href='http://articles.runtings.co.uk/search/label/HtmlAgilityPack' rel='tag'>
+HtmlAgilityPack
+</a>
+
+                                    ,
+                                  
+<a href='http://articles.runtings.co.uk/search/label/screen%20scraping' rel='tag'>
+screen scraping
+</a>
+</span>
+</div>
+</div>
+<div class='post-footer-line post-footer-line-2'>
+<span class='post-comment-link'>
+</span>
+<span class='post-icons'>
+</span>
+<div class='post-share-buttons'>
+<a class='goog-inline-block share-button sb-email' href='https://www.blogger.com/share-post.g?blogID=5519904556829079674&postID=1959600173360165106&target=email' target='_blank' title='Email This'>
+<span class='share-button-link-text'>
+Email This
+</span>
+</a>
+<a class='goog-inline-block share-button sb-blog' href='https://www.blogger.com/share-post.g?blogID=5519904556829079674&postID=1959600173360165106&target=blog' onclick='window.open(this.href, "_blank", "height=270,width=475"); return false;' target='_blank' title='BlogThis!'>
+<span class='share-button-link-text'>
+BlogThis!
+</span>
+</a>
+<a class='goog-inline-block share-button sb-twitter' href='https://www.blogger.com/share-post.g?blogID=5519904556829079674&postID=1959600173360165106&target=twitter' target='_blank' title='Share to Twitter'>
+<span class='share-button-link-text'>
+Share to Twitter
+</span>
+</a>
+<a class='goog-inline-block share-button sb-facebook' href='https://www.blogger.com/share-post.g?blogID=5519904556829079674&postID=1959600173360165106&target=facebook' onclick='window.open(this.href, "_blank", "height=430,width=640"); return false;' target='_blank' title='Share to Facebook'>
+<span class='share-button-link-text'>
+Share to Facebook
+</span>
+</a>
+<a class='goog-inline-block share-button sb-pinterest' href='https://www.blogger.com/share-post.g?blogID=5519904556829079674&postID=1959600173360165106&target=pinterest' target='_blank' title='Share to Pinterest'>
+<span class='share-button-link-text'>
+Share to Pinterest
+</span>
+</a>
+<div class='goog-inline-block dummy-container'>
+<g:plusone source='blogger:blog:plusone' href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html' size='medium' width='300' annotation='inline'></g:plusone>
+</div>
+</div>
+</div>
+<div class='post-footer-line post-footer-line-3'></div>
+</div>
+</div>
+<div class='comments' id='comments'>
+<a name='comments'></a>
+<h4>
+19 comments
+                            :
+                          </h4>
+<div id='Blog1_comments-block-wrapper'>
+<dl class='avatar-comment-indent' id='comments-block'>
+<dt class='comment-author ' id='c2314451447093355139'>
+<a name='c2314451447093355139'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="https://www.blogger.com/profile/12141222432003749907" target="" rel="nofollow" onclick="" class="avatar-hovercard" id="av-2314451447093355139-12141222432003749907"><img src="//lh3.googleusercontent.com/zFdxGE77vvD2w5xHy6jkVuElKv-U9_9qLkRYK8OnbDeJPtjSZ82UPq5w6hJ-SA=s35" width="35" height="35" alt="" title="cs">
+
+</a></span></div>
+<a href='https://www.blogger.com/profile/12141222432003749907' rel='nofollow'>
+cs
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-2314451447093355139'>
+<p>
+Great article. I would love to see/know how HtmlAgilityPack handles large files. For example, if I have a 30 megabyte XHTML document and want to get every nth sub-element and write that to a much smaller document, is that possible? It seems like HtmlAgilityPack is a memory-only tool and does not support disk-level streams. Is that true?<br><br>Thanks.
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1260201280542#c2314451447093355139' title='comment permalink'>
+7 December 2009 at 15:54
+</a>
+<span class='item-control blog-admin pid-1592332253'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=2314451447093355139' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c7433958011982095382'>
+<a name='c7433958011982095382'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="http://www.articleshive.com" target="" rel="nofollow" onclick=""><img src="//img1.blogblog.com/img/blank.gif" width="35" height="35" alt="" title="waqas">
+
+</a></span></div>
+<a href='http://www.articleshive.com' rel='nofollow'>
+waqas
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-7433958011982095382'>
+<p>
+Cool
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1261553941968#c7433958011982095382' title='comment permalink'>
+23 December 2009 at 07:39
+</a>
+<span class='item-control blog-admin pid-1846444092'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=7433958011982095382' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c283024413242049303'>
+<a name='c283024413242049303'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><img src="//img1.blogblog.com/img/blank.gif" width="35" height="35" alt="" title="Anonymous">
+
+</span></div>
+Anonymous
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-283024413242049303'>
+<p>
+Very informative. This method will be userful when wanting to extract information like Weather, Currency from sites not having to pay or subscribe in order to receive Rss feeds to fetch the same info. It&#39;s simply great that it can parse dirty html code. Having said that, I am not sure of any legal policies some sites might have from using their content they pay for.<br><br>Great article.<br><br>Thanks a lot for sharing.
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1261585069657#c283024413242049303' title='comment permalink'>
+23 December 2009 at 16:17
+</a>
+<span class='item-control blog-admin pid-1860491411'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=283024413242049303' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author blog-author' id='c4492902655161672431'>
+<a name='c4492902655161672431'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="https://www.blogger.com/profile/12491312873295977300" target="" rel="nofollow" onclick="" class="avatar-hovercard" id="av-4492902655161672431-12491312873295977300"><img src="//lh3.googleusercontent.com/zFdxGE77vvD2w5xHy6jkVuElKv-U9_9qLkRYK8OnbDeJPtjSZ82UPq5w6hJ-SA=s35" width="35" height="35" alt="" title="rtpHarry">
+
+</a></span></div>
+<a href='https://www.blogger.com/profile/12491312873295977300' rel='nofollow'>
+rtpHarry
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-4492902655161672431'>
+<p>
+@Anonymous: in my intro article written before this one I link to the wikipedia article which explains screen scraping. It has a section which covers the legal aspects and it concludes that it is legal although some content creators understandably take issue with their content being skimmed. http://en.wikipedia.org/wiki/Web_scraping#Legal_issues
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1261585550361#c4492902655161672431' title='comment permalink'>
+23 December 2009 at 16:25
+</a>
+<span class='item-control blog-admin pid-1555730132'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=4492902655161672431' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c135068159325174572'>
+<a name='c135068159325174572'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><img src="//img1.blogblog.com/img/blank.gif" width="35" height="35" alt="" title="Anonymous">
+
+</span></div>
+Anonymous
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-135068159325174572'>
+<p>
+This will work for simple, well behaved page.  Many times a page has multiple navigations buried in it and the DocumentCompleted has not well, completed.  <br><br>It&#39;s possible to grab the content too soon.
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1261624487343#c135068159325174572' title='comment permalink'>
+24 December 2009 at 03:14
+</a>
+<span class='item-control blog-admin pid-1488566092'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=135068159325174572' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c8841585621389249314'>
+<a name='c8841585621389249314'></a>
+<div class="avatar-image-container vcard"><span dir="ltr"><a href="https://www.blogger.com/profile/01682674508971050398" target="" rel="nofollow" onclick="" class="avatar-hovercard" id="av-8841585621389249314-01682674508971050398"><img src="https://img1.blogblog.com/img/blank.gif" width="35" height="35" class="delayLoad" style="display: none;" longdesc="//1.bp.blogspot.com/_sBensdEb9gQ/SXpxSo2K-EI/AAAAAAAAAGo/5HSEOo5mrLE/S45-s35/throw_ganesha.gif" alt="" title="Shailesh kavathiya">
+
+<noscript><img src="//1.bp.blogspot.com/_sBensdEb9gQ/SXpxSo2K-EI/AAAAAAAAAGo/5HSEOo5mrLE/S45-s35/throw_ganesha.gif" width="35" height="35" class="photo" alt=""></noscript></a></span></div>
+<a href='https://www.blogger.com/profile/01682674508971050398' rel='nofollow'>
+Shailesh kavathiya
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-8841585621389249314'>
+<p>
+Great post Thanks for share with us keep it up
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1261731275391#c8841585621389249314' title='comment permalink'>
+25 December 2009 at 08:54
+</a>
+<span class='item-control blog-admin pid-1556984865'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=8841585621389249314' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c6395948140527370565'>
+<a name='c6395948140527370565'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="http://knowledgepool.co.in" target="" rel="nofollow" onclick=""><img src="//img1.blogblog.com/img/blank.gif" width="35" height="35" alt="" title="Suraj">
+
+</a></span></div>
+<a href='http://knowledgepool.co.in' rel='nofollow'>
+Suraj
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-6395948140527370565'>
+<p>
+great article ... it helped
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1261844031325#c6395948140527370565' title='comment permalink'>
+26 December 2009 at 16:13
+</a>
+<span class='item-control blog-admin pid-314333980'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=6395948140527370565' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c7825581641439254596'>
+<a name='c7825581641439254596'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><img src="//img1.blogblog.com/img/blank.gif" width="35" height="35" alt="" title="Anonymous">
+
+</span></div>
+Anonymous
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-7825581641439254596'>
+<p>
+An excellent article! A link to it ought to be posted on forums.asp.net in the HowTos
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1263841034928#c7825581641439254596' title='comment permalink'>
+18 January 2010 at 18:57
+</a>
+<span class='item-control blog-admin pid-1287898621'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=7825581641439254596' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c2845954587424220086'>
+<a name='c2845954587424220086'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="https://www.blogger.com/profile/08341764808195985099" target="" rel="nofollow" onclick="" class="avatar-hovercard" id="av-2845954587424220086-08341764808195985099"><img src="//lh3.googleusercontent.com/zFdxGE77vvD2w5xHy6jkVuElKv-U9_9qLkRYK8OnbDeJPtjSZ82UPq5w6hJ-SA=s35" width="35" height="35" alt="" title="Monish">
+
+</a></span></div>
+<a href='https://www.blogger.com/profile/08341764808195985099' rel='nofollow'>
+Monish
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-2845954587424220086'>
+<p>
+Good work. But if I want to Post Data like Username and password and then i need screen scrape of whole html in txt file then what i need to do using Htmlagilitypack? I am waiting for your next article in which you will solve my this problem.
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1268637761526#c2845954587424220086' title='comment permalink'>
+15 March 2010 at 07:22
+</a>
+<span class='item-control blog-admin pid-1824184110'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=2845954587424220086' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author blog-author' id='c5946770206201062732'>
+<a name='c5946770206201062732'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="https://www.blogger.com/profile/12491312873295977300" target="" rel="nofollow" onclick="" class="avatar-hovercard" id="av-5946770206201062732-12491312873295977300"><img src="//lh3.googleusercontent.com/zFdxGE77vvD2w5xHy6jkVuElKv-U9_9qLkRYK8OnbDeJPtjSZ82UPq5w6hJ-SA=s35" width="35" height="35" alt="" title="rtpHarry">
+
+</a></span></div>
+<a href='https://www.blogger.com/profile/12491312873295977300' rel='nofollow'>
+rtpHarry
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-5946770206201062732'>
+<p>
+@Monish: You can send authenticated requests but it depends on the login mechanism in use on the site. I would suggest bringing this up in a thread on forums.asp.net if you want to explore this further.
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1269103556767#c5946770206201062732' title='comment permalink'>
+20 March 2010 at 16:45
+</a>
+<span class='item-control blog-admin pid-1555730132'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=5946770206201062732' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c6230759362680813066'>
+<a name='c6230759362680813066'></a>
+<div class="avatar-image-container vcard"><span dir="ltr"><a href="https://www.blogger.com/profile/17946875033209369015" target="" rel="nofollow" onclick="" class="avatar-hovercard" id="av-6230759362680813066-17946875033209369015"><img src="https://img1.blogblog.com/img/blank.gif" width="35" height="35" class="delayLoad" style="display: none;" longdesc="//2.bp.blogspot.com/_84so6F8O-Wo/SatvKdgntaI/AAAAAAAAADM/bKOeU9N354g/S45-s35/3-19-2006%2B1-01-14%2BAM_0298.200Wide.jpg" alt="" title="Treeluv Burdpu">
+
+<noscript><img src="//2.bp.blogspot.com/_84so6F8O-Wo/SatvKdgntaI/AAAAAAAAADM/bKOeU9N354g/S45-s35/3-19-2006%2B1-01-14%2BAM_0298.200Wide.jpg" width="35" height="35" class="photo" alt=""></noscript></a></span></div>
+<a href='https://www.blogger.com/profile/17946875033209369015' rel='nofollow'>
+Treeluv Burdpu
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-6230759362680813066'>
+<p>
+I like this post. I like HtmlAgilityPack. But I am lost when it doesn&#39;t work. If you do a SelectNodes(&quot;//*[@id=&#39;search-results-module&#39;]/*&quot;) and you get zero results from a document which you believe has those elements you are SOL, as far as I can tell. You just get nothing. Is there some tool which will help me hone my XPathing skills? All the ones I have found expect an XML doc and break with HTML, or just return nothing. How to troubleshoot syntax? I am already starting on the &quot;try every character combination&quot; method. I should be done this century. Any assistance would be appreciated.
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1272396828618#c6230759362680813066' title='comment permalink'>
+27 April 2010 at 20:33
+</a>
+<span class='item-control blog-admin pid-1627180650'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=6230759362680813066' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author blog-author' id='c2716056360865068342'>
+<a name='c2716056360865068342'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="https://www.blogger.com/profile/12491312873295977300" target="" rel="nofollow" onclick="" class="avatar-hovercard" id="av-2716056360865068342-12491312873295977300"><img src="//lh3.googleusercontent.com/zFdxGE77vvD2w5xHy6jkVuElKv-U9_9qLkRYK8OnbDeJPtjSZ82UPq5w6hJ-SA=s35" width="35" height="35" alt="" title="rtpHarry">
+
+</a></span></div>
+<a href='https://www.blogger.com/profile/12491312873295977300' rel='nofollow'>
+rtpHarry
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-2716056360865068342'>
+<p>
+@Treeluv Burdpu: If you are working in .net 3.0 or above then you can now use linq queries against the latest beta release. I have two articles in the pipelines for this but my world has not been blog friendly recently :) If you know how to use linq to objects then you should be able to compose your queries without having to tear your hair out! (I don&#39;t get on that well with XSL either)
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1272633086251#c2716056360865068342' title='comment permalink'>
+30 April 2010 at 14:11
+</a>
+<span class='item-control blog-admin pid-1555730132'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=2716056360865068342' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c3288330878341388277'>
+<a name='c3288330878341388277'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="http://www.ooty.me" target="" rel="nofollow" onclick=""><img src="//img1.blogblog.com/img/blank.gif" width="35" height="35" alt="" title="ooty">
+
+</a></span></div>
+<a href='http://www.ooty.me' rel='nofollow'>
+ooty
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-3288330878341388277'>
+<p>
+thanks man it helped me a lot
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1290155258644#c3288330878341388277' title='comment permalink'>
+19 November 2010 at 08:27
+</a>
+<span class='item-control blog-admin pid-760214452'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=3288330878341388277' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c934673284884448661'>
+<a name='c934673284884448661'></a>
+<div class="avatar-image-container vcard"><span dir="ltr"><a href="https://www.blogger.com/profile/14915789602802390489" target="" rel="nofollow" onclick="" class="avatar-hovercard" id="av-934673284884448661-14915789602802390489"><img src="https://img1.blogblog.com/img/blank.gif" width="35" height="35" class="delayLoad" style="display: none;" longdesc="//lh4.googleusercontent.com/-Cz5jXoTaDjU/AAAAAAAAAAI/AAAAAAAAAAA/Utq3hHsxwmA/s35-c/photo.jpg" alt="" title="Taufik Lukman">
+
+<noscript><img src="//lh4.googleusercontent.com/-Cz5jXoTaDjU/AAAAAAAAAAI/AAAAAAAAAAA/Utq3hHsxwmA/s35-c/photo.jpg" width="35" height="35" class="photo" alt=""></noscript></a></span></div>
+<a href='https://www.blogger.com/profile/14915789602802390489' rel='nofollow'>
+Taufik Lukman
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-934673284884448661'>
+<p>
+So you still have to use regular expression?
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1356661887870#c934673284884448661' title='comment permalink'>
+28 December 2012 at 02:31
+</a>
+<span class='item-control blog-admin pid-1535709689'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=934673284884448661' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c772232262785736037'>
+<a name='c772232262785736037'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="https://www.blogger.com/profile/06141230673071054710" target="" rel="nofollow" onclick="" class="avatar-hovercard" id="av-772232262785736037-06141230673071054710"><img src="//lh3.googleusercontent.com/zFdxGE77vvD2w5xHy6jkVuElKv-U9_9qLkRYK8OnbDeJPtjSZ82UPq5w6hJ-SA=s35" width="35" height="35" alt="" title="Pradeep Nulu">
+
+</a></span></div>
+<a href='https://www.blogger.com/profile/06141230673071054710' rel='nofollow'>
+Pradeep Nulu
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-772232262785736037'>
+<p>
+Hi,<br>How do I exclude commented links ?<br><br>Thanks.
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1356684747067#c772232262785736037' title='comment permalink'>
+28 December 2012 at 08:52
+</a>
+<span class='item-control blog-admin pid-1397600631'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=772232262785736037' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c3981776173055482249'>
+<a name='c3981776173055482249'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="https://www.blogger.com/profile/06141230673071054710" target="" rel="nofollow" onclick="" class="avatar-hovercard" id="av-3981776173055482249-06141230673071054710"><img src="//lh3.googleusercontent.com/zFdxGE77vvD2w5xHy6jkVuElKv-U9_9qLkRYK8OnbDeJPtjSZ82UPq5w6hJ-SA=s35" width="35" height="35" alt="" title="Pradeep Nulu">
+
+</a></span></div>
+<a href='https://www.blogger.com/profile/06141230673071054710' rel='nofollow'>
+Pradeep Nulu
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-3981776173055482249'>
+<p>
+Hi,<br>How do I ignore commented links ?<br>Thanks.
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1356684790524#c3981776173055482249' title='comment permalink'>
+28 December 2012 at 08:53
+</a>
+<span class='item-control blog-admin pid-1397600631'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=3981776173055482249' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c2381945044158584180'>
+<a name='c2381945044158584180'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="https://www.blogger.com/profile/06141230673071054710" target="" rel="nofollow" onclick="" class="avatar-hovercard" id="av-2381945044158584180-06141230673071054710"><img src="//lh3.googleusercontent.com/zFdxGE77vvD2w5xHy6jkVuElKv-U9_9qLkRYK8OnbDeJPtjSZ82UPq5w6hJ-SA=s35" width="35" height="35" alt="" title="Pradeep Nulu">
+
+</a></span></div>
+<a href='https://www.blogger.com/profile/06141230673071054710' rel='nofollow'>
+Pradeep Nulu
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-2381945044158584180'>
+<p>
+Hi,<br>How do I exclude commented links ?<br>Thanks.
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1356684817950#c2381945044158584180' title='comment permalink'>
+28 December 2012 at 08:53
+</a>
+<span class='item-control blog-admin pid-1397600631'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=2381945044158584180' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c8673396533474494820'>
+<a name='c8673396533474494820'></a>
+<div class="avatar-image-container vcard"><span dir="ltr"><a href="https://www.blogger.com/profile/05327463958153294128" target="" rel="nofollow" onclick="" class="avatar-hovercard" id="av-8673396533474494820-05327463958153294128"><img src="https://img1.blogblog.com/img/blank.gif" width="35" height="35" class="delayLoad" style="display: none;" longdesc="//lh4.googleusercontent.com/-iCv1fMHUvHI/AAAAAAAAAAI/AAAAAAAACD0/4ZNXrENybDs/s35-c/photo.jpg" alt="" title="Sherihan Anver">
+
+<noscript><img src="//lh4.googleusercontent.com/-iCv1fMHUvHI/AAAAAAAAAAI/AAAAAAAACD0/4ZNXrENybDs/s35-c/photo.jpg" width="35" height="35" class="photo" alt=""></noscript></a></span></div>
+<a href='https://www.blogger.com/profile/05327463958153294128' rel='nofollow'>
+Sherihan Anver
+</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-8673396533474494820'>
+<p>
+Hi,<br>May I know whether HtmlAgilityPack is compatible with Visual Studio 2010 (.NET framework 4.0). Can it extract aps.net pages&#39; every valid tags? Sorry, I just found about  HtmlAgilityPack and I think according to this BLOG, this is what I was searching for days now. I need to extract web pages of asp.net for some evaluation process. please reply if my target can be achieved via this
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1370605467881#c8673396533474494820' title='comment permalink'>
+7 June 2013 at 12:44
+</a>
+<span class='item-control blog-admin pid-240543839'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=8673396533474494820' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c8068442510857311683'>
+<a name='c8068442510857311683'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><img src="//img1.blogblog.com/img/blank.gif" width="35" height="35" alt="" title="Anonymous">
+
+</span></div>
+Anonymous
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-8068442510857311683'>
+<p>
+Could you tell me where href attributes are getting with this solution? I don&#39;t understand which web site has this a tags. <br><br> <br><br>
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html?showComment=1371816377502#c8068442510857311683' title='comment permalink'>
+21 June 2013 at 13:06
+</a>
+<span class='item-control blog-admin pid-1023509592'>
+<a class='comment-delete' href='https://www.blogger.com/delete-comment.g?blogID=5519904556829079674&postID=8068442510857311683' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'>
+</a>
+</span>
+</span>
+</dd>
+</dl>
+</div>
+<p class='comment-footer'>
+<a class='btn btn-primary' href='https://www.blogger.com/comment.g?blogID=5519904556829079674&postID=1959600173360165106' onclick=''>
+<i class='icon-comment icon-white'></i>
+Post a Comment
+</a>
+</p>
+<div id='backlinks-container'>
+<div id='Blog1_backlinks-container'>
+</div>
+</div>
+</div>
+</div>
+
+                            </div></div>
+                          
+<!--Can't find substitution for tag [adEnd]-->
+</div>
+<div class='blog-pager' id='blog-pager'>
+<span id='blog-pager-newer-link'>
+<a class='btn btn-default blog-pager-newer-link' href='http://articles.runtings.co.uk/2009/11/update-vs2010-beta-2-validation-schema.html' id='Blog1_blog-pager-newer-link' title='Newer Post'>
+Newer Post
+</a>
+</span>
+<span id='blog-pager-older-link'>
+<a class='btn btn-default blog-pager-older-link' href='http://articles.runtings.co.uk/2009/11/vs2010-beta-2-validation-schema-element.html' id='Blog1_blog-pager-older-link' title='Older Post'>
+Older Post
+</a>
+</span>
+<a class='btn btn-default home-link' href='http://articles.runtings.co.uk/'>
+Home
+</a>
+</div>
+<div class='clear'></div>
+<div class='post-feeds'>
+<div class='feed-links'>
+Subscribe to:
+<a class='feed-link' href='http://articles.runtings.co.uk/feeds/1959600173360165106/comments/default' target='_blank' type='application/atom+xml'>
+Post Comments
+                            (
+                            Atom
+                            )
+                          </a>
+</div>
+</div>
+<script type="text/javascript">window.___gcfg = {'lang': 'en_GB'};</script>
+</div><div class='widget HTML' data-version='1' id='HTML4'>
+<div class='widget-content'>
+<div id="WasProblemSolvedPanel" style="display: none;">
+           <h2>Was your problem solved by this article?</h2>
+           <div id="WasProblemSolvedLinkPanel">
+               <a class="ButtonPane Yes" href="#" id="ProblemSolved">Yes</a>
+               <a class="ButtonPane No" href="#" id="ProblemNotSolved">No</a>
+               <div style="clear: both;"></div>
+           </div>
+           <div id="WasProblemSolvedThanksPanel" style="display: none;">
+               <p>Thank you for clicking!</p>
+               <p>If you have additional feedback please use the <a href="#comments">comment form</a>.</p>
+           </div>
+           <p id="WasProblemSolvedLearnMore"><a href="http://runtingsproper.blogspot.com/2011/04/did-i-help-gauge-if-your-articles-are.html">Learn how I built this feature using jQuery and Google Analytics</a></p>
+       </div>
+</div>
+<div class='clear'></div>
+<span class='widget-item-control'>
+<span class='item-control blog-admin'>
+<a class='quickedit' href='//www.blogger.com/rearrange?blogID=5519904556829079674&widgetType=HTML&widgetId=HTML4&action=editWidget&sectionId=main' onclick='return _WidgetManager._PopupConfig(document.getElementById("HTML4"));' target='configHTML4' title='Edit'>
+<img alt='' height='18' src='https://resources.blogblog.com/img/icon18_wrench_allbkg.png' width='18'>
+</a>
+</span>
+</span>
+<div class='clear'></div>
+</div><div class='widget HTML' data-version='1' id='HTML2'>
+<script type='text/javascript'>
+                          var disqus_shortname = 'rtpdesign';
+                          var disqus_blogger_current_url = "http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html";
+                          if (!disqus_blogger_current_url.length) {
+                              disqus_blogger_current_url = "http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html";
+                          }
+                          var disqus_blogger_homepage_url = "http://articles.runtings.co.uk/";
+                          var disqus_blogger_canonical_homepage_url = "http://articles.runtings.co.uk/";
+                      </script>
+<style type='text/css'>
+                              #comments {display:none;}
+                          </style>
+<script type='text/javascript'>
+                              (function() {
+                                  var bloggerjs = document.createElement('script');
+                                  bloggerjs.type = 'text/javascript';
+                                  bloggerjs.async = true;
+                                  bloggerjs.src = '//'+disqus_shortname+'.disqus.com/blogger_item.js';
+                                  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(bloggerjs);
+                              })();
+                          </script>
+<style type='text/css'>
+                              .post-comment-link { visibility: hidden; }
+                          </style>
+<script type='text/javascript'>
+                          (function() {
+                              var bloggerjs = document.createElement('script');
+                              bloggerjs.type = 'text/javascript';
+                              bloggerjs.async = true;
+                              bloggerjs.src = '//'+disqus_shortname+'.disqus.com/blogger_index.js';
+                              (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(bloggerjs);
+                          })();
+                          </script>
+</div></div>
+</div>
+</div>
+<!--/span-->
+</div>
+<!--/row-->
+</div>
+<!--/span-->
+<div class='col-md-3'>
+<div class='well sidebar-nav'>
+<div id='sidebar-wrapper'>
+<div class='sidebar section' id='sidebar'><div class='widget BlogArchive' data-version='1' id='BlogArchive1'>
+<h2>
+Articles
+</h2>
+<div class='widget-content'>
+<div id='ArchiveList'>
+<div id='BlogArchive1_ArchiveList'>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2016/'>
+2016
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            1
+                            )
+                          </span>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2016/04/'>
+April
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            1
+                            )
+                          </span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2015/'>
+2015
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            31
+                            )
+                          </span>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2015/10/'>
+October
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            6
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2015/09/'>
+September
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            6
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2015/08/'>
+August
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            5
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2015/06/'>
+June
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            1
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2015/05/'>
+May
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            4
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2015/04/'>
+April
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            2
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2015/03/'>
+March
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            7
+                            )
+                          </span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2014/'>
+2014
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            10
+                            )
+                          </span>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2014/12/'>
+December
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            4
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2014/11/'>
+November
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            1
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2014/10/'>
+October
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            1
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2014/09/'>
+September
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            4
+                            )
+                          </span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2013/'>
+2013
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            2
+                            )
+                          </span>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2013/07/'>
+July
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            2
+                            )
+                          </span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2012/'>
+2012
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            2
+                            )
+                          </span>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2012/07/'>
+July
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            2
+                            )
+                          </span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2011/'>
+2011
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            7
+                            )
+                          </span>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2011/06/'>
+June
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            3
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2011/04/'>
+April
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            3
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2011/03/'>
+March
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            1
+                            )
+                          </span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2010/'>
+2010
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            10
+                            )
+                          </span>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2010/04/'>
+April
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            5
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2010/03/'>
+March
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            3
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2010/02/'>
+February
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            2
+                            )
+                          </span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate expanded'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy toggle-open'>
+                            &#9660;&#160;
+                          </span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2009/'>
+2009
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            51
+                            )
+                          </span>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2009/12/'>
+December
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            5
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate expanded'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy toggle-open'>
+                            &#9660;&#160;
+                          </span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2009/11/'>
+November
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            6
+                            )
+                          </span>
+<ul class='posts'>
+<li>
+<a href='http://articles.runtings.co.uk/2009/11/update-vs2010-beta-2-validation-schema.html'>
+Update - VS2010 Beta 2 &#8211; Validation ($SCHEMA$): El...
+</a>
+</li>
+<li>
+<a href='http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html'>
+Easily extracting links from a snippet of html wit...
+</a>
+</li>
+<li>
+<a href='http://articles.runtings.co.uk/2009/11/vs2010-beta-2-validation-schema-element.html'>
+VS2010 Beta 2 &#8211; Validation ($SCHEMA$): Element is ...
+</a>
+</li>
+<li>
+<a href='http://articles.runtings.co.uk/2009/11/i-bet-you-didn-know-that-adding-custom.html'>
+I bet you didn&#39;t know that adding custom attribute...
+</a>
+</li>
+<li>
+<a href='http://articles.runtings.co.uk/2009/11/advanced-url-rewriting-for-rest-of-us.html'>
+Advanced url rewriting for the rest of us - how to...
+</a>
+</li>
+<li>
+<a href='http://articles.runtings.co.uk/2009/11/microsoft-team-foundation-server-2010.html'>
+Microsoft Team Foundation Server 2010 Beta 2 Insta...
+</a>
+</li>
+</ul>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2009/10/'>
+October
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            22
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2009/09/'>
+September
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            6
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2009/08/'>
+August
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            3
+                            )
+                          </span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle' href='javascript:void(0)'>
+<span class='zippy'>
+
+                              &#9658;&#160;
+                            
+</span>
+</a>
+<a class='post-count-link' href='http://articles.runtings.co.uk/2009/07/'>
+July
+</a>
+<span class='post-count' dir='ltr'>
+                            (
+                            9
+                            )
+                          </span>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class='clear'></div>
+<span class='widget-item-control'>
+<span class='item-control blog-admin'>
+<a class='quickedit' href='//www.blogger.com/rearrange?blogID=5519904556829079674&widgetType=BlogArchive&widgetId=BlogArchive1&action=editWidget&sectionId=sidebar' onclick='return _WidgetManager._PopupConfig(document.getElementById("BlogArchive1"));' target='configBlogArchive1' title='Edit'>
+<img alt='' height='18' src='https://resources.blogblog.com/img/icon18_wrench_allbkg.png' width='18'>
+</a>
+</span>
+</span>
+<div class='clear'></div>
+</div>
+</div>
+<div class='widget Stats' data-version='1' id='Stats1'>
+<h2>Visitors</h2>
+<div class='widget-content'>
+<div id='Stats1_content' style='display: none;'>
+<img alt='Sparkline' height='30' id='Stats1_sparkline' width='75'>
+<span class='counter-wrapper text-counter-wrapper' id='Stats1_totalCount'>
+</span>
+<div class='clear'></div>
+<span class='widget-item-control'>
+<span class='item-control blog-admin'>
+<a class='quickedit' href='//www.blogger.com/rearrange?blogID=5519904556829079674&widgetType=Stats&widgetId=Stats1&action=editWidget&sectionId=sidebar' onclick='return _WidgetManager._PopupConfig(document.getElementById("Stats1"));' target='configStats1' title='Edit'>
+<img alt='' height='18' src='https://resources.blogblog.com/img/icon18_wrench_allbkg.png' width='18'>
+</a>
+</span>
+</span>
+<div class='clear'></div>
+</div>
+</div>
+</div><div class='widget HTML' data-version='1' id='HTML1'>
+<div class='widget-content'>
+<script type="text/javascript" id="clustrmaps" src="//cdn.clustrmaps.com/map_v2.js?u=9w9T&d=5vou4yVaPkdtxKmZbMvo-991kxotkVZCcmjy9KP79aU"></script>
+</div>
+<div class='clear'></div>
+<span class='widget-item-control'>
+<span class='item-control blog-admin'>
+<a class='quickedit' href='//www.blogger.com/rearrange?blogID=5519904556829079674&widgetType=HTML&widgetId=HTML1&action=editWidget&sectionId=sidebar' onclick='return _WidgetManager._PopupConfig(document.getElementById("HTML1"));' target='configHTML1' title='Edit'>
+<img alt='' height='18' src='https://resources.blogblog.com/img/icon18_wrench_allbkg.png' width='18'>
+</a>
+</span>
+</span>
+<div class='clear'></div>
+</div><div class='widget HTML' data-version='1' id='HTML5'>
+<div class='widget-content'>
+<!-- who's amung us -->
+<!--
+<script src="http://widgets.amung.us/classic.js" type="text/javascript"></script><script type="text/javascript">WAU_classic('6zm8tfa5w0q4')</script>
+-->
+
+<!-- tynt -->
+<!--
+<script type="text/javascript">tyntVariables = {"ap":""};</script> <script src="http://tcr.tynt.com/javascripts/Tracer.js?user=du7lrUZXyr3PqRab7jrHtB&amp;s=91&amp;a=0&amp;lang=en" type="text/javascript"></script>
+-->
+</div>
+<div class='clear'></div>
+<span class='widget-item-control'>
+<span class='item-control blog-admin'>
+<a class='quickedit' href='//www.blogger.com/rearrange?blogID=5519904556829079674&widgetType=HTML&widgetId=HTML5&action=editWidget&sectionId=sidebar' onclick='return _WidgetManager._PopupConfig(document.getElementById("HTML5"));' target='configHTML5' title='Edit'>
+<img alt='' height='18' src='https://resources.blogblog.com/img/icon18_wrench_allbkg.png' width='18'>
+</a>
+</span>
+</span>
+<div class='clear'></div>
+</div><div class='widget HTML' data-version='1' id='HTML7'>
+<div class='widget-content'>
+<div style="float: left; margin-right: 15px;">
+
+<!-- Feedburner -->
+<p><a href="http://runtingsproper.blogspot.com/feeds/posts/default"><img width="88" style="border:0" alt="" src="http://feeds.feedburner.com/~fc/RunTingsProper?bg=99CCFF&amp;fg=444444&amp;anim=1" height="26"></a></p>
+
+</div>
+</div>
+<div class='clear'></div>
+<span class='widget-item-control'>
+<span class='item-control blog-admin'>
+<a class='quickedit' href='//www.blogger.com/rearrange?blogID=5519904556829079674&widgetType=HTML&widgetId=HTML7&action=editWidget&sectionId=sidebar' onclick='return _WidgetManager._PopupConfig(document.getElementById("HTML7"));' target='configHTML7' title='Edit'>
+<img alt='' height='18' src='https://resources.blogblog.com/img/icon18_wrench_allbkg.png' width='18'>
+</a>
+</span>
+</span>
+<div class='clear'></div>
+</div></div>
+</div>
+</div>
+<!--/.well -->
+</div>
+<!--/span-->
+</div>
+<!--/row-->
+<hr>
+<footer>
+<p>
+          &#169; Copyright rtp design ltd
+        </p>
+<div id='footer-wrapper'>
+<div class='footer no-items section' id='footer'></div>
+</div>
+</footer>
+</div>
+<!--/.fluid-container-->
+<!-- Le javascript ================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src='//code.jquery.com/jquery-1.11.1.min.js'></script>
+<script src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>
+<script type='text/javascript'>
+      /* <![CDATA[ */
+      var ScrollMarker = 0;
+      $(document).ready(function () {
+        SetupGoogleAnalyticsTrackEvents();
+      });
+      function SetupGoogleAnalyticsTrackEvents()
+      {
+        TrackEventsForCodeSampleDownloads();
+        TrackEventsForImageClicks();
+        TrackEventsForMinimumPageScroll();
+        TrackEventsForWasProblemSolved();
+      }
+      function TrackEventsForWasProblemSolved()
+      {
+        $("#WasProblemSolvedPanel").show();
+        $("#ProblemSolved").click(function(e){
+          e.preventDefault();
+          WasProblemSolvedClick("Yes");
+        });
+        $("#ProblemNotSolved").click(function(e){
+          e.preventDefault();
+          WasProblemSolvedClick("No");
+        });
+      }
+      function WasProblemSolvedClick(answer)
+      {
+        TrackEvent("Was Problem Solved?", answer, document.location.href);
+        $("#WasProblemSolvedLinkPanel").hide("fast");
+        $("#WasProblemSolvedThanksPanel").addClass(answer);
+        $("#WasProblemSolvedThanksPanel").show("fast");
+      }
+      function TrackEventsForMinimumPageScroll()
+      {
+        $(window).scroll(function(){
+          var bottom = $(window).height() + $(window).scrollTop();
+          var height = $(document).height();
+          var percentage = Math.round(100*bottom/height);
+          if(percentage > 90)
+          {
+            if(ScrollMarker == 0)
+            { 
+              ScrollMarker = 1;
+              //                 alert("Page Scrolled to 90% in " + document.location.href);
+              TrackEvent("Content Engagement", "Scrolled To 90%", document.location.href);
+            }
+          }
+        }); 
+      }
+      function TrackEventsForCodeSampleDownloads()
+      {
+        var FilterByBlogSampleHref = "href^='http://cid-15f731b049c8a797.skydrive.live.com/self.aspx/BlogExamples/'";
+        var FilterByRarFileExtension = "href$='.rar'";
+        $("a[" + FilterByBlogSampleHref + "][" + FilterByRarFileExtension + "]").click(function() {
+          var SampleFileName = ExtractFileNameFromUrl($(this).attr("href"));
+          TrackEvent("Sample Application", "Download", SampleFileName);
+        });
+      }
+      function TrackEventsForImageClicks()
+      {
+        TrackEventByFileExtension(".gif");
+        TrackEventByFileExtension(".jpg");
+        TrackEventByFileExtension(".jpeg");
+        TrackEventByFileExtension(".png");
+      }
+      function TrackEventByFileExtension(FileExtension)
+      {
+        $("a[href$='" + FileExtension + "']").click(function() {
+          var ImageFileName = ExtractFileNameFromUrl($(this).attr("href"));
+          TrackEvent("Image Enlargement", "Click", ImageFileName);
+        });
+      }
+      function ExtractFileNameFromUrl(Url)
+      {
+        // Note this code assumes
+        //   - that the url doesnt contain a query string
+        //   - that a real url has been passed in
+        //   - that the url has a filename and isnt a folder
+        var SplitUrl = Url.split('/');
+        var FileName = SplitUrl[SplitUrl.length-1];
+        return FileName;
+      }
+      function TrackEvent(Category, Action, Label)
+      {
+        ga('send', 'event', Category, Action, Label, {'nonInteraction': 1});
+      }     
+      /* ]]> */
+    </script>
+<script src='//static.rtpdesign.co.uk/syntaxhighlighter_3.0.83/scripts/shCore.js' type='text/javascript'></script>
+<script src='//static.rtpdesign.co.uk/syntaxhighlighter_3.0.83/scripts/shBrushCSharp.js' type='text/javascript'></script>
+<script src='//static.rtpdesign.co.uk/syntaxhighlighter_3.0.83/scripts/shBrushCss.js' type='text/javascript'></script>
+<script src='//static.rtpdesign.co.uk/syntaxhighlighter_3.0.83/scripts/shBrushJScript.js' type='text/javascript'></script>
+<script src='//static.rtpdesign.co.uk/syntaxhighlighter_3.0.83/scripts/shBrushPhp.js' type='text/javascript'></script>
+<script src='//static.rtpdesign.co.uk/syntaxhighlighter_3.0.83/scripts/shBrushSql.js' type='text/javascript'></script>
+<script src='//static.rtpdesign.co.uk/syntaxhighlighter_3.0.83/scripts/shBrushVb.js' type='text/javascript'></script>
+<script src='//static.rtpdesign.co.uk/syntaxhighlighter_3.0.83/scripts/shBrushXml.js' type='text/javascript'></script>
+<link href='//static.rtpdesign.co.uk/syntaxhighlighter_3.0.83/styles/shCoreDefault.css' rel='stylesheet' type='text/css'>
+<script type='text/javascript'>
+      //        SyntaxHighlighter.config.clipboardSwf = 'http://alexgorbatchev.com/pub/sh/2.1.364/scripts/clipboard.swf';
+      //        SyntaxHighlighter.config.bloggerMode = true;
+      SyntaxHighlighter.config.stripBrs = true;
+      SyntaxHighlighter.all();	
+    </script>
+<script src='https://apis.google.com/js/plusone.js' type='text/javascript'></script>
+<!--It is your responsibility to notify your visitors about cookies used on your blog. See http://www.blogger.com/go/cookiechoices for more details.-->
+<script defer='' src='/js/cookiechoices.js'></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function(event) {
+      window.cookieChoices && cookieChoices.showCookieConsentBar && cookieChoices.showCookieConsentBar(
+          (window.cookieOptions && cookieOptions.msg) || 'This site uses cookies from Google to deliver its services, to personalize ads and to analyze traffic. Information about your use of this site is shared with Google. By using this site, you agree to its use of cookies.',
+          (window.cookieOptions && cookieOptions.close) || 'Got it',
+          (window.cookieOptions && cookieOptions.learn) || 'Learn More',
+          (window.cookieOptions && cookieOptions.link) || 'https://www.blogger.com/go/blogspot-cookies');
+    });
+  </script>
+
+<script type="text/javascript" src="https://www.blogger.com/static/v1/widgets/1845596459-widgets.js"></script>
+<script type='text/javascript'>
+window['__wavt'] = 'AOuZoY5eR_PFqnLiERDLr3XtZB7SVqSovA:1524241286536';_WidgetManager._Init('//www.blogger.com/rearrange?blogID\x3d5519904556829079674','//articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html','5519904556829079674');
+_WidgetManager._SetDataContext([{'name': 'blog', 'data': {'blogId': '5519904556829079674', 'title': 'Run Tings Proper', 'url': 'http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html', 'canonicalUrl': 'http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html', 'homepageUrl': 'http://articles.runtings.co.uk/', 'searchUrl': 'http://articles.runtings.co.uk/search', 'canonicalHomepageUrl': 'http://articles.runtings.co.uk/', 'blogspotFaviconUrl': 'http://articles.runtings.co.uk/favicon.ico', 'bloggerUrl': 'https://www.blogger.com', 'hasCustomDomain': true, 'httpsEnabled': false, 'enabledCommentProfileImages': true, 'gPlusViewType': 'FILTERED_POSTMOD', 'adultContent': false, 'analyticsAccountNumber': '', 'encoding': 'UTF-8', 'locale': 'en-GB', 'localeUnderscoreDelimited': 'en_gb', 'languageDirection': 'ltr', 'isPrivate': false, 'isMobile': false, 'isMobileRequest': false, 'mobileClass': '', 'isPrivateBlog': false, 'feedLinks': '\x3clink rel\x3d\x22alternate\x22 type\x3d\x22application/atom+xml\x22 title\x3d\x22Run Tings Proper - Atom\x22 href\x3d\x22http://articles.runtings.co.uk/feeds/posts/default\x22 /\x3e\n\x3clink rel\x3d\x22alternate\x22 type\x3d\x22application/rss+xml\x22 title\x3d\x22Run Tings Proper - RSS\x22 href\x3d\x22http://articles.runtings.co.uk/feeds/posts/default?alt\x3drss\x22 /\x3e\n\x3clink rel\x3d\x22service.post\x22 type\x3d\x22application/atom+xml\x22 title\x3d\x22Run Tings Proper - Atom\x22 href\x3d\x22https://www.blogger.com/feeds/5519904556829079674/posts/default\x22 /\x3e\n\n\x3clink rel\x3d\x22alternate\x22 type\x3d\x22application/atom+xml\x22 title\x3d\x22Run Tings Proper - Atom\x22 href\x3d\x22http://articles.runtings.co.uk/feeds/1959600173360165106/comments/default\x22 /\x3e\n', 'meTag': '', 'openIdOpTag': '', 'adsenseClientId': 'ca-pub-2338349067644727', 'adsenseHostId': 'ca-host-pub-1556223355139109', 'adsenseHasAds': false, 'view': '', 'dynamicViewsCommentsSrc': '//www.blogblog.com/dynamicviews/4224c15c4e7c9321/js/comments.js', 'dynamicViewsScriptSrc': '//www.blogblog.com/dynamicviews/f102e30b12349698', 'plusOneApiSrc': 'https://apis.google.com/js/plusone.js', 'sharing': {'platforms': [{'name': 'Get link', 'key': 'link', 'shareMessage': 'Get link', 'target': ''}, {'name': 'Facebook', 'key': 'facebook', 'shareMessage': 'Share to Facebook', 'target': 'facebook'}, {'name': 'BlogThis!', 'key': 'blogThis', 'shareMessage': 'BlogThis!', 'target': 'blog'}, {'name': 'Twitter', 'key': 'twitter', 'shareMessage': 'Share to Twitter', 'target': 'twitter'}, {'name': 'Pinterest', 'key': 'pinterest', 'shareMessage': 'Share to Pinterest', 'target': 'pinterest'}, {'name': 'Google+', 'key': 'googlePlus', 'shareMessage': 'Share to Google+', 'target': 'googleplus'}, {'name': 'Email', 'key': 'email', 'shareMessage': 'Email', 'target': 'email'}], 'googlePlusShareButtonWidth': 300, 'googlePlusBootstrap': '\x3cscript type\x3d\x22text/javascript\x22\x3ewindow.___gcfg \x3d {\x27lang\x27: \x27en_GB\x27};\x3c/script\x3e'}, 'hasCustomJumpLinkMessage': false, 'jumpLinkMessage': 'Read more', 'pageType': 'item', 'postId': '1959600173360165106', 'postImageUrl': 'http://www.dotnetkicks.com/Services/Images/KickItImageGenerator.ashx?url\x3dhttp%3a%2f%2fruntingsproper.blogspot.com%2f2009%2f11%2feasily-extracting-links-from-snippet-of.html', 'pageName': 'Easily extracting links from a snippet of html with HtmlAgilityPack', 'pageTitle': 'Run Tings Proper: Easily extracting links from a snippet of html with HtmlAgilityPack'}}, {'name': 'features', 'data': {'lazy_images': 'false', 'sharing_get_link_dialog': 'true', 'sharing_native': 'false'}}, {'name': 'messages', 'data': {'edit': 'Edit', 'linkCopiedToClipboard': 'Link copied to clipboard', 'ok': 'Ok', 'postLink': 'Post link'}}, {'name': 'template', 'data': {'name': 'custom', 'localizedName': 'Custom', 'isResponsive': false, 'isAlternateRendering': false, 'isCustom': true}}, {'name': 'view', 'data': {'classic': {'name': 'classic', 'url': '?view\x3dclassic'}, 'flipcard': {'name': 'flipcard', 'url': '?view\x3dflipcard'}, 'magazine': {'name': 'magazine', 'url': '?view\x3dmagazine'}, 'mosaic': {'name': 'mosaic', 'url': '?view\x3dmosaic'}, 'sidebar': {'name': 'sidebar', 'url': '?view\x3dsidebar'}, 'snapshot': {'name': 'snapshot', 'url': '?view\x3dsnapshot'}, 'timeslide': {'name': 'timeslide', 'url': '?view\x3dtimeslide'}, 'isMobile': false, 'title': 'Easily extracting links from a snippet of html with HtmlAgilityPack', 'description': 'The HtmlAgilityPack is a powerful library that makes screen scraping in asp.net a breeze. This is the second in a continuing series where I ...', 'featuredImage': 'https://lh6.googleusercontent.com/proxy/lxXxNT59-UIJOarH_9E9QvAjA7DFqhjZ1qwZysqGWt7h46lRJVqllMflfjB21df_Vt3y3Rfm_rhAr9OJzk-doGB_e5Tbp8cO6X4OJxrS0iVrBQ2XOeK1Ds8Ix69DjSyAEbaFIRqekMvzaqUW9XRlceuNP-ojFPFjiW8mJcmD8EnwsUCgXFfsWcljH5irIv4Jme6KVTYc9Wiu3exLzgDNKZ1ySWYzovM9CyxONEdKP6xgc_egYzN_a7wUTyqHwZ-zpA', 'url': 'http://articles.runtings.co.uk/2009/11/easily-extracting-links-from-snippet-of.html', 'type': 'item', 'isSingleItem': true, 'isMultipleItems': false, 'isError': false, 'isPage': false, 'isPost': true, 'isHomepage': false, 'isArchive': false, 'isLabelSearch': false, 'postId': 1959600173360165106}}]);
+_WidgetManager._RegisterWidget('_BlogView', new _WidgetInfo('Blog1', 'main', null, document.getElementById('Blog1'), {'cmtInteractionsEnabled': false, 'useNgc': false, 'lightboxEnabled': true, 'lightboxModuleUrl': 'https://www.blogger.com/static/v1/jsbin/2112952029-lbx__en_gb.js', 'lightboxCssUrl': 'https://www.blogger.com/static/v1/v-css/368954415-lightbox_bundle.css'}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_HTMLView', new _WidgetInfo('HTML4', 'main', null, document.getElementById('HTML4'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_HTMLView', new _WidgetInfo('HTML2', 'main', null, document.getElementById('HTML2'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_BlogArchiveView', new _WidgetInfo('BlogArchive1', 'sidebar', null, document.getElementById('BlogArchive1'), {'languageDirection': 'ltr', 'loadingMessage': 'Loading\x26hellip;'}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_StatsView', new _WidgetInfo('Stats1', 'sidebar', null, document.getElementById('Stats1'), {'title': 'Visitors', 'showGraphicalCounter': false, 'showAnimatedCounter': false, 'showSparkline': true, 'statsUrl': '//articles.runtings.co.uk/b/stats?style\x3dBLACK_TRANSPARENT\x26timeRange\x3dALL_TIME\x26token\x3dibmT5WIBAAA.gedpdAIMUQPUW5olPSb0IOEY2pj2r25Ld1RRHwO8Sjk.A1LNkA90tA1_JrfPdv3CEA'}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_HTMLView', new _WidgetInfo('HTML1', 'sidebar', null, document.getElementById('HTML1'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_HTMLView', new _WidgetInfo('HTML5', 'sidebar', null, document.getElementById('HTML5'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_HTMLView', new _WidgetInfo('HTML7', 'sidebar', null, document.getElementById('HTML7'), {}, 'displayModeFull'));
+</script>
+</body>
+</html>
